@@ -10,15 +10,21 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.appevents.AppEventsLogger;
 //import com.facebook.login.LoginClient;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -29,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     CallbackManager callbackManager;
     private String TAG = "mainAct";
+    private AccessToken aToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess(LoginResult loginResult) {
                 // App code
                 Log.d(TAG, "loginResult=? B");
+
+
             }
 
             @Override
@@ -85,11 +94,13 @@ public class MainActivity extends AppCompatActivity {
                     public void onSuccess(LoginResult loginResult) {
                         // App code
                         if (loginResult!=null){
-                            Log.d(TAG, "loginResult=something");
+                            aToken = loginResult.getAccessToken();
+                            Log.d(TAG, "token="+aToken);
+                            getData(aToken);
+
                         } else {
                             Log.d(TAG, "loginResult=null");
                         }
-
                     }
 
                     @Override
@@ -113,7 +124,44 @@ public class MainActivity extends AppCompatActivity {
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void friends(){
+    private void getData(AccessToken token){
+
+        GraphRequest request = GraphRequest.newMeRequest(
+                token,
+                new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(
+                            JSONObject object,
+                            GraphResponse response) {
+                        // Application code
+                        Log.d(TAG,"JSobject="+object);
+                        String id = null;
+                        try {
+                            id = (String) object.get("id");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        String name = null;
+                        try {
+                            name = (String) object.get("name");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        String link = null;
+                        try {
+                            link = (String) object.get("link");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        Log.d(TAG, "name="+name);
+                        Log.d(TAG, "id="+id);
+                        Log.d(TAG, "link="+link);
+                    }
+                });
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "id,name,link,birthday,gender");
+        request.setParameters(parameters);
+        request.executeAsync();
 
         /*
         LoginClient.Request.newMyFriendsRequest(session, new GraphUserListCallback() {
