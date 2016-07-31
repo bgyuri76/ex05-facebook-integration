@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -156,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "name="+name);
                         Log.d(TAG, "id="+id);
                         Log.d(TAG, "link="+link);
+                        setTextFields(object);
                     }
                 });
         Bundle parameters = new Bundle();
@@ -171,6 +173,35 @@ public class MainActivity extends AppCompatActivity {
             }
         }).executeAsync();
         */
+
+    }
+
+    private void setTextFields(JSONObject object) {
+        TextView fbName = (TextView) findViewById(R.id.fb_name);
+        TextView fbId = (TextView) findViewById(R.id.fb_id);
+        TextView fbLink = (TextView) findViewById(R.id.fb_link);
+        String name = null;
+        String id = null;
+        String link = null;
+        try {
+            name = (String) object.get("name");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        fbName.setText(name);
+        try {
+            id = (String) object.get("id");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        fbId.setText(id);
+        try {
+            link = (String) object.get("link");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        fbLink.setText(link);
+
 
     }
 }
