@@ -18,18 +18,22 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
+import com.facebook.GraphRequestAsyncTask;
 import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.facebook.appevents.AppEventsLogger;
 //import com.facebook.login.LoginClient;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 //import java.security.Signature;
 
@@ -102,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
                             aToken = loginResult.getAccessToken();
                             Log.d(TAG, "token="+aToken);
                             getData(aToken);
+                            getFriendList(aToken);
 
                             AccessTokenTracker tokenTracker = new AccessTokenTracker() {
                                 protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken,
@@ -225,5 +230,33 @@ public class MainActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.fb_name)).setText(" - ");
         ((TextView) findViewById(R.id.fb_id)).setText(" - ");
         ((TextView) findViewById(R.id.fb_link)).setText(" - ");
+    }
+
+    private void getFriendList(AccessToken token){
+        final ArrayList<String> names = new ArrayList<>();
+        /* make the API call */
+        new GraphRequest(
+                AccessToken.getCurrentAccessToken(),
+                "/" + (token.getUserId()) + "/friends",
+                null,
+                HttpMethod.GET,
+                new GraphRequest.Callback() {
+                    public void onCompleted(GraphResponse response) {
+            /* handle the result */
+
+                        /*
+                        try {
+                            JSONArray jsonArray = response.getJSONArray();
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                names.add(jsonArray.getString(i));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        Log.d(TAG, "names = " + names);
+                        */
+                    }
+                }
+        ).executeAsync();
     }
 }
