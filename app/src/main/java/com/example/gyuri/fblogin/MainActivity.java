@@ -12,6 +12,7 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     CallbackManager callbackManager;
     private String TAG = "mainAct";
     private AccessToken aToken;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
         callbackManager = CallbackManager.Factory.create();
         LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
+        /*
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
 
             @Override
@@ -88,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "loginError= B" + exception.toString());
             }
         });
+        */
 
         LoginManager.getInstance().registerCallback(callbackManager,
                 new FacebookCallback<LoginResult>() {
@@ -98,6 +102,17 @@ public class MainActivity extends AppCompatActivity {
                             aToken = loginResult.getAccessToken();
                             Log.d(TAG, "token="+aToken);
                             getData(aToken);
+
+                            AccessTokenTracker tokenTracker = new AccessTokenTracker() {
+                                protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken,
+                                                                           AccessToken currentAccessToken) {
+                                    if (currentAccessToken == null) {
+                                        //write your code here what to do when user logout
+                                        clearTextFields();
+                                    }
+                                }
+                            };
+
 
                         } else {
                             Log.d(TAG, "loginResult=null");
@@ -203,5 +218,12 @@ public class MainActivity extends AppCompatActivity {
         fbLink.setText(link);
 
 
+    }
+
+    private void clearTextFields(){
+        Log.d(TAG, "clear");
+        ((TextView) findViewById(R.id.fb_name)).setText(" - ");
+        ((TextView) findViewById(R.id.fb_id)).setText(" - ");
+        ((TextView) findViewById(R.id.fb_link)).setText(" - ");
     }
 }
